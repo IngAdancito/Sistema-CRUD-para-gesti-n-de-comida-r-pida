@@ -24,4 +24,4 @@ estadísticas. La información se persiste en `localStorage` del navegador.
 
 ## Autor
 
-Marcelo Romero — IngAdancito
+IngAdancito
