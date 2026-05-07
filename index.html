@@ -88,11 +88,40 @@
       </div>
     </section>
 
+    <!-- ========== PEDIDOS ========== -->
     <section id="pedidos" class="tab-panel">
       <div class="panel-header">
         <h2>Gestión de Pedidos</h2>
+        <button class="btn btn-primary" id="btn-nuevo-pedido">+ Nuevo Pedido</button>
       </div>
-      <p class="empty">Próximamente...</p>
+
+      <div class="toolbar">
+        <input type="text" id="buscar-pedido" placeholder="Buscar por cliente..." />
+        <select id="filtro-estado">
+          <option value="">Todos los estados</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="En preparación">En preparación</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Productos</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-pedidos"></tbody>
+        </table>
+      </div>
     </section>
 
     <section id="dashboard" class="tab-panel">
@@ -162,6 +191,60 @@
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== MODAL PEDIDO ========== -->
+  <div class="modal" id="modal-pedido">
+    <div class="modal-content modal-lg">
+      <h3 id="titulo-modal-pedido">Nuevo Pedido</h3>
+      <form id="form-pedido">
+        <input type="hidden" id="pedido-id" />
+        <label>Cliente
+          <select id="pedido-cliente" required></select>
+        </label>
+
+        <div class="agregar-producto">
+          <select id="pedido-producto-select"></select>
+          <input type="number" id="pedido-cantidad" min="1" value="1" />
+          <button type="button" class="btn btn-secondary" id="btn-agregar-item">Agregar</button>
+        </div>
+
+        <div class="table-wrap small">
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>P. Unit.</th>
+                <th>Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="pedido-items"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="text-align:right"><strong>Total:</strong></td>
+                <td colspan="2"><strong id="pedido-total">$0.00</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <label>Estado
+          <select id="pedido-estado" required>
+            <option value="Pendiente">Pendiente</option>
+            <option value="En preparación">En preparación</option>
+            <option value="Entregado">Entregado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Pedido</button>
         </div>
       </form>
     </div>
