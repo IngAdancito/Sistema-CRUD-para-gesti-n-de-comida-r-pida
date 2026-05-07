@@ -45,6 +45,7 @@ $$('.tab-btn').forEach(btn => {
     $$('.tab-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     $('#' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'dashboard') renderDashboard();
   });
 });
 
@@ -401,8 +402,22 @@ $('#buscar-pedido').addEventListener('input', renderPedidos);
 $('#filtro-estado').addEventListener('change', renderPedidos);
 
 // ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  $('#stat-productos').textContent = productos.length;
+  $('#stat-clientes').textContent = clientes.length;
+  $('#stat-pedidos').textContent = pedidos.length;
+  const ingresos = pedidos
+    .filter(p => p.estado === 'Entregado')
+    .reduce((s, p) => s + p.total, 0);
+  $('#stat-ingresos').textContent = fmt(ingresos);
+}
+
+// ============================================================
 // INIT
 // ============================================================
 renderProductos();
 renderClientes();
 renderPedidos();
+renderDashboard();
