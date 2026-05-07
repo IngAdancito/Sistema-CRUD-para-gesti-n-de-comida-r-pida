@@ -31,6 +31,13 @@ function toast(msg, type = '') {
   setTimeout(() => t.className = 'toast', 2500);
 }
 
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
 // ===== TABS =====
 $$('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -75,11 +82,11 @@ function renderProductos() {
   tbody.innerHTML = lista.map(p => `
     <tr>
       <td>${p.id}</td>
-      <td><strong>${p.nombre}</strong></td>
-      <td>${p.categoria}</td>
+      <td><strong>${escapeHtml(p.nombre)}</strong></td>
+      <td>${escapeHtml(p.categoria)}</td>
       <td>${fmt(p.precio)}</td>
       <td>${p.stock}</td>
-      <td>${p.descripcion || '-'}</td>
+      <td>${escapeHtml(p.descripcion || '-')}</td>
       <td class="actions-cell">
         <button class="btn btn-sm btn-secondary" onclick="editarProducto(${p.id})">Editar</button>
         <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${p.id})">Borrar</button>
@@ -164,10 +171,10 @@ function renderClientes() {
   tbody.innerHTML = lista.map(c => `
     <tr>
       <td>${c.id}</td>
-      <td><strong>${c.nombre}</strong></td>
-      <td>${c.telefono}</td>
-      <td>${c.direccion}</td>
-      <td>${c.email || '-'}</td>
+      <td><strong>${escapeHtml(c.nombre)}</strong></td>
+      <td>${escapeHtml(c.telefono)}</td>
+      <td>${escapeHtml(c.direccion)}</td>
+      <td>${escapeHtml(c.email || '-')}</td>
       <td class="actions-cell">
         <button class="btn btn-sm btn-secondary" onclick="editarCliente(${c.id})">Editar</button>
         <button class="btn btn-sm btn-danger" onclick="eliminarCliente(${c.id})">Borrar</button>
@@ -250,15 +257,15 @@ function renderPedidos() {
 
   tbody.innerHTML = lista.map(p => {
     const cli = clientes.find(c => c.id === p.clienteId);
-    const itemsTxt = p.items.map(i => `${i.cantidad}× ${i.nombre}`).join(', ');
+    const itemsTxt = p.items.map(i => `${i.cantidad}× ${escapeHtml(i.nombre)}`).join(', ');
     const badgeClass = 'badge-' + p.estado.replace(/\s/g, '');
     return `
       <tr>
         <td>#${p.id}</td>
-        <td>${cli ? cli.nombre : '<em>cliente eliminado</em>'}</td>
+        <td>${cli ? escapeHtml(cli.nombre) : '<em>cliente eliminado</em>'}</td>
         <td>${itemsTxt}</td>
         <td><strong>${fmt(p.total)}</strong></td>
-        <td><span class="badge ${badgeClass}">${p.estado}</span></td>
+        <td><span class="badge ${badgeClass}">${escapeHtml(p.estado)}</span></td>
         <td>${p.fecha}</td>
         <td class="actions-cell">
           <button class="btn btn-sm btn-secondary" onclick="editarPedido(${p.id})">Editar</button>
@@ -272,11 +279,11 @@ function renderPedidos() {
 function poblarSelectsPedido() {
   const selCli = $('#pedido-cliente');
   selCli.innerHTML = '<option value="">Seleccione cliente...</option>' +
-    clientes.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    clientes.map(c => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
 
   const selProd = $('#pedido-producto-select');
   selProd.innerHTML = '<option value="">Seleccione producto...</option>' +
-    productos.map(p => `<option value="${p.id}">${p.nombre} - ${fmt(p.precio)}</option>`).join('');
+    productos.map(p => `<option value="${p.id}">${escapeHtml(p.nombre)} - ${fmt(p.precio)}</option>`).join('');
 }
 
 function renderItemsPedido() {
@@ -288,7 +295,7 @@ function renderItemsPedido() {
   }
   tbody.innerHTML = pedidoItemsTemp.map((item, i) => `
     <tr>
-      <td>${item.nombre}</td>
+      <td>${escapeHtml(item.nombre)}</td>
       <td>${item.cantidad}</td>
       <td>${fmt(item.precio)}</td>
       <td>${fmt(item.precio * item.cantidad)}</td>
