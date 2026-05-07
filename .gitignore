@@ -13,3 +13,10 @@ Desktop.ini
 
 # Logs
 *.log
+
+# Node / npm
+node_modules/
+
+# Build artifacts
+dist/
+reports/

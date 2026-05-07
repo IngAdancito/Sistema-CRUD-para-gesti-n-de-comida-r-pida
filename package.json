@@ -1,0 +1,26 @@
+{
+  "name": "fastfood-manager",
+  "version": "1.0.0",
+  "description": "Sistema CRUD para gestión de comida rápida - Práctica 1 GCS",
+  "main": "app.js",
+  "scripts": {
+    "lint": "eslint lib/ tests/",
+    "validate:html": "html-validate index.html",
+    "test": "node --test tests/utils.test.js",
+    "test:report": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=reports/junit.xml tests/utils.test.js",
+    "build": "node scripts/build.js",
+    "ci": "npm run lint && npm run validate:html && npm test"
+  },
+  "keywords": [
+    "crud",
+    "fastfood",
+    "gcs",
+    "academic"
+  ],
+  "author": "Marcelo Romero (IngAdancito)",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.15.0",
+    "html-validate": "^9.0.0"
+  }
+}
