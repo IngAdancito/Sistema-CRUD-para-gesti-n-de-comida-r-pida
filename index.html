@@ -22,11 +22,42 @@
 
   <main class="container">
 
+    <!-- ========== PRODUCTOS ========== -->
     <section id="productos" class="tab-panel active">
       <div class="panel-header">
         <h2>Gestión de Productos</h2>
+        <button class="btn btn-primary" id="btn-nuevo-producto">+ Nuevo Producto</button>
       </div>
-      <p class="empty">Próximamente...</p>
+
+      <div class="toolbar">
+        <input type="text" id="buscar-producto" placeholder="Buscar producto..." />
+        <select id="filtro-categoria">
+          <option value="">Todas las categorías</option>
+          <option value="Hamburguesas">Hamburguesas</option>
+          <option value="Pizzas">Pizzas</option>
+          <option value="Pollo">Pollo</option>
+          <option value="Bebidas">Bebidas</option>
+          <option value="Postres">Postres</option>
+          <option value="Acompañamientos">Acompañamientos</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Descripción</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-productos"></tbody>
+        </table>
+      </div>
     </section>
 
     <section id="clientes" class="tab-panel">
@@ -51,6 +82,45 @@
     </section>
 
   </main>
+
+  <!-- ========== MODAL PRODUCTO ========== -->
+  <div class="modal" id="modal-producto">
+    <div class="modal-content">
+      <h3 id="titulo-modal-producto">Nuevo Producto</h3>
+      <form id="form-producto">
+        <input type="hidden" id="producto-id" />
+        <label>Nombre
+          <input type="text" id="producto-nombre" required maxlength="50" />
+        </label>
+        <label>Categoría
+          <select id="producto-categoria" required>
+            <option value="">Seleccione...</option>
+            <option value="Hamburguesas">Hamburguesas</option>
+            <option value="Pizzas">Pizzas</option>
+            <option value="Pollo">Pollo</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Postres">Postres</option>
+            <option value="Acompañamientos">Acompañamientos</option>
+          </select>
+        </label>
+        <label>Precio
+          <input type="number" id="producto-precio" min="0" step="0.01" required />
+        </label>
+        <label>Stock
+          <input type="number" id="producto-stock" min="0" step="1" required />
+        </label>
+        <label>Descripción
+          <textarea id="producto-descripcion" maxlength="200"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
 
   <script src="app.js"></script>
 </body>
