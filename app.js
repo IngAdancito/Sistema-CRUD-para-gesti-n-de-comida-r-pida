@@ -414,6 +414,70 @@ function renderDashboard() {
   $('#stat-ingresos').textContent = fmt(ingresos);
 }
 
+$('#btn-cargar-demo').addEventListener('click', () => {
+  if (productos.length || clientes.length || pedidos.length) {
+    if (!confirm('Esto agregará datos de ejemplo. ¿Continuar?')) return;
+  }
+  cargarDatosDemo();
+  toast('Datos demo cargados', 'success');
+});
+
+$('#btn-borrar-todo').addEventListener('click', () => {
+  if (!confirm('¿Borrar TODA la información (productos, clientes y pedidos)? Esto no se puede deshacer.')) return;
+  productos = []; clientes = []; pedidos = [];
+  db.save(DB_KEYS.productos, productos);
+  db.save(DB_KEYS.clientes, clientes);
+  db.save(DB_KEYS.pedidos, pedidos);
+  renderProductos(); renderClientes(); renderPedidos(); renderDashboard();
+  toast('Información borrada', 'success');
+});
+
+function cargarDatosDemo() {
+  const demoProd = [
+    { nombre: 'Hamburguesa Clásica', categoria: 'Hamburguesas', precio: 5.50, stock: 30, descripcion: 'Carne, lechuga, tomate, queso' },
+    { nombre: 'Hamburguesa Doble', categoria: 'Hamburguesas', precio: 7.90, stock: 20, descripcion: 'Doble carne con bacon' },
+    { nombre: 'Pizza Margarita', categoria: 'Pizzas', precio: 9.00, stock: 15, descripcion: 'Mozzarella, tomate, albahaca' },
+    { nombre: 'Pizza Pepperoni', categoria: 'Pizzas', precio: 11.50, stock: 12, descripcion: 'Pepperoni y queso fundido' },
+    { nombre: 'Alitas BBQ', categoria: 'Pollo', precio: 6.50, stock: 25, descripcion: '8 alitas con salsa BBQ' },
+    { nombre: 'Coca-Cola 500ml', categoria: 'Bebidas', precio: 1.80, stock: 50, descripcion: 'Botella fría' },
+    { nombre: 'Papas Fritas', categoria: 'Acompañamientos', precio: 2.50, stock: 40, descripcion: 'Porción mediana' },
+    { nombre: 'Helado de Vainilla', categoria: 'Postres', precio: 3.00, stock: 18, descripcion: 'Con sirope a elegir' }
+  ];
+  const demoCli = [
+    { nombre: 'Juan Pérez', telefono: '555-1234', direccion: 'Av. Central 123', email: 'juan@mail.com' },
+    { nombre: 'María González', telefono: '555-5678', direccion: 'Calle Norte 45', email: 'maria@mail.com' },
+    { nombre: 'Carlos Ramírez', telefono: '555-9012', direccion: 'Plaza Sur 7', email: '' }
+  ];
+
+  productos = demoProd.map((p, i) => ({ id: i + 1, ...p }));
+  clientes = demoCli.map((c, i) => ({ id: i + 1, ...c }));
+
+  pedidos = [
+    {
+      id: 1, clienteId: 1,
+      items: [
+        { productoId: 1, nombre: 'Hamburguesa Clásica', precio: 5.50, cantidad: 2 },
+        { productoId: 6, nombre: 'Coca-Cola 500ml', precio: 1.80, cantidad: 2 }
+      ],
+      total: 14.60, estado: 'Entregado', fecha: new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+    },
+    {
+      id: 2, clienteId: 2,
+      items: [
+        { productoId: 4, nombre: 'Pizza Pepperoni', precio: 11.50, cantidad: 1 },
+        { productoId: 7, nombre: 'Papas Fritas', precio: 2.50, cantidad: 1 }
+      ],
+      total: 14.00, estado: 'En preparación', fecha: new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+    }
+  ];
+
+  db.save(DB_KEYS.productos, productos);
+  db.save(DB_KEYS.clientes, clientes);
+  db.save(DB_KEYS.pedidos, pedidos);
+
+  renderProductos(); renderClientes(); renderPedidos(); renderDashboard();
+}
+
 // ============================================================
 // INIT
 // ============================================================

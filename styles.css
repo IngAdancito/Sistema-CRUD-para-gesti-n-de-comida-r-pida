@@ -291,3 +291,11 @@ tbody tr:last-child td { border-bottom: none; }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.success { background: var(--success); }
 .toast.error { background: var(--danger); }
+
+@media (max-width: 600px) {
+  .topbar { padding: 1rem; }
+  .container { padding: 0 1rem; }
+  th, td { padding: 0.55rem 0.6rem; font-size: 0.85rem; }
+  .agregar-producto { flex-direction: column; align-items: stretch; }
+  .agregar-producto input { flex: 1; }
+}
