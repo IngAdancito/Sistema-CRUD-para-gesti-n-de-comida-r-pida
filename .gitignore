@@ -1,0 +1,15 @@
+# Carpetas de respaldo locales
+.backup/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Sistema operativo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs
+*.log
