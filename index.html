@@ -60,11 +60,32 @@
       </div>
     </section>
 
+    <!-- ========== CLIENTES ========== -->
     <section id="clientes" class="tab-panel">
       <div class="panel-header">
         <h2>Gestión de Clientes</h2>
+        <button class="btn btn-primary" id="btn-nuevo-cliente">+ Nuevo Cliente</button>
       </div>
-      <p class="empty">Próximamente...</p>
+
+      <div class="toolbar">
+        <input type="text" id="buscar-cliente" placeholder="Buscar cliente..." />
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Dirección</th>
+              <th>Email</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-clientes"></tbody>
+        </table>
+      </div>
     </section>
 
     <section id="pedidos" class="tab-panel">
@@ -111,6 +132,32 @@
         </label>
         <label>Descripción
           <textarea id="producto-descripcion" maxlength="200"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== MODAL CLIENTE ========== -->
+  <div class="modal" id="modal-cliente">
+    <div class="modal-content">
+      <h3 id="titulo-modal-cliente">Nuevo Cliente</h3>
+      <form id="form-cliente">
+        <input type="hidden" id="cliente-id" />
+        <label>Nombre completo
+          <input type="text" id="cliente-nombre" required maxlength="80" />
+        </label>
+        <label>Teléfono
+          <input type="tel" id="cliente-telefono" required maxlength="20" />
+        </label>
+        <label>Dirección
+          <input type="text" id="cliente-direccion" required maxlength="120" />
+        </label>
+        <label>Email
+          <input type="email" id="cliente-email" maxlength="80" />
         </label>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" data-close>Cancelar</button>

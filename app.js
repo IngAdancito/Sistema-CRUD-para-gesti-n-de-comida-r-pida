@@ -3,7 +3,7 @@
 // Persistencia: localStorage
 // ============================================================
 
-const DB_KEYS = { productos: 'ff_productos' };
+const DB_KEYS = { productos: 'ff_productos', clientes: 'ff_clientes' };
 
 const db = {
   load(key) {
@@ -15,6 +15,7 @@ const db = {
 };
 
 let productos = db.load(DB_KEYS.productos);
+let clientes  = db.load(DB_KEYS.clientes);
 
 // ===== UTILIDADES =====
 const $ = (sel) => document.querySelector(sel);
@@ -142,6 +143,92 @@ $('#buscar-producto').addEventListener('input', renderProductos);
 $('#filtro-categoria').addEventListener('change', renderProductos);
 
 // ============================================================
+// CLIENTES - CRUD
+// ============================================================
+function renderClientes() {
+  const filtro = $('#buscar-cliente').value.toLowerCase();
+  const tbody = $('#tabla-clientes');
+
+  const lista = clientes.filter(c =>
+    c.nombre.toLowerCase().includes(filtro) ||
+    c.telefono.includes(filtro)
+  );
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No hay clientes registrados</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(c => `
+    <tr>
+      <td>${c.id}</td>
+      <td><strong>${c.nombre}</strong></td>
+      <td>${c.telefono}</td>
+      <td>${c.direccion}</td>
+      <td>${c.email || '-'}</td>
+      <td class="actions-cell">
+        <button class="btn btn-sm btn-secondary" onclick="editarCliente(${c.id})">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="eliminarCliente(${c.id})">Borrar</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+$('#btn-nuevo-cliente').addEventListener('click', () => {
+  $('#form-cliente').reset();
+  $('#cliente-id').value = '';
+  $('#titulo-modal-cliente').textContent = 'Nuevo Cliente';
+  openModal('modal-cliente');
+});
+
+window.editarCliente = function(id) {
+  const c = clientes.find(x => x.id === id);
+  if (!c) return;
+  $('#cliente-id').value = c.id;
+  $('#cliente-nombre').value = c.nombre;
+  $('#cliente-telefono').value = c.telefono;
+  $('#cliente-direccion').value = c.direccion;
+  $('#cliente-email').value = c.email || '';
+  $('#titulo-modal-cliente').textContent = 'Editar Cliente';
+  openModal('modal-cliente');
+};
+
+window.eliminarCliente = function(id) {
+  if (!confirm('¿Eliminar este cliente?')) return;
+  clientes = clientes.filter(c => c.id !== id);
+  db.save(DB_KEYS.clientes, clientes);
+  renderClientes();
+  toast('Cliente eliminado', 'success');
+};
+
+$('#form-cliente').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const id = $('#cliente-id').value;
+  const data = {
+    nombre: $('#cliente-nombre').value.trim(),
+    telefono: $('#cliente-telefono').value.trim(),
+    direccion: $('#cliente-direccion').value.trim(),
+    email: $('#cliente-email').value.trim()
+  };
+
+  if (id) {
+    const idx = clientes.findIndex(c => c.id === parseInt(id, 10));
+    clientes[idx] = { ...clientes[idx], ...data };
+    toast('Cliente actualizado', 'success');
+  } else {
+    clientes.push({ id: db.nextId(clientes), ...data });
+    toast('Cliente creado', 'success');
+  }
+
+  db.save(DB_KEYS.clientes, clientes);
+  closeModal('modal-cliente');
+  renderClientes();
+});
+
+$('#buscar-cliente').addEventListener('input', renderClientes);
+
+// ============================================================
 // INIT
 // ============================================================
 renderProductos();
+renderClientes();
