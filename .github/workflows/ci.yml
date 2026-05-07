@@ -1,0 +1,82 @@
+name: CI - FastFood Manager
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'fix/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    name: Build, Lint y Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Lint de JavaScript (ESLint)
+        run: npm run lint
+
+      - name: Validar HTML
+        run: npm run validate:html
+
+      - name: Ejecutar pruebas unitarias
+        run: npm test
+
+      - name: Generar reporte JUnit
+        if: always()
+        run: |
+          mkdir -p reports
+          npm run test:report
+
+      - name: Subir reporte de pruebas como artefacto
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: reports/junit.xml
+          retention-days: 30
+
+      - name: Construir entregable (build)
+        run: npm run build
+
+      - name: Subir build como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: fastfood-manager-dist
+          path: dist/
+          retention-days: 30
+
+      - name: Resumen del pipeline
+        if: always()
+        run: |
+          echo "## FastFood Manager - Resultado del Pipeline" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Etapa | Descripcion |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Checkout | Codigo descargado del repositorio |" >> $GITHUB_STEP_SUMMARY
+          echo "| Setup Node | Node.js 20 configurado |" >> $GITHUB_STEP_SUMMARY
+          echo "| Install | Dependencias instaladas con npm install |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | Codigo JS analizado con ESLint |" >> $GITHUB_STEP_SUMMARY
+          echo "| HTML Validation | index.html validado con html-validate |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | Pruebas unitarias ejecutadas con node:test |" >> $GITHUB_STEP_SUMMARY
+          echo "| Report | Reporte JUnit generado en reports/junit.xml |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | Archivos empaquetados en dist/ |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${GITHUB_SHA::8}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Rama:** \`${GITHUB_REF_NAME}\`" >> $GITHUB_STEP_SUMMARY
