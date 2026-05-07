@@ -3,7 +3,7 @@
 // Persistencia: localStorage
 // ============================================================
 
-const DB_KEYS = { productos: 'ff_productos', clientes: 'ff_clientes' };
+const DB_KEYS = { productos: 'ff_productos', clientes: 'ff_clientes', pedidos: 'ff_pedidos' };
 
 const db = {
   load(key) {
@@ -16,6 +16,8 @@ const db = {
 
 let productos = db.load(DB_KEYS.productos);
 let clientes  = db.load(DB_KEYS.clientes);
+let pedidos   = db.load(DB_KEYS.pedidos);
+let pedidoItemsTemp = [];
 
 // ===== UTILIDADES =====
 const $ = (sel) => document.querySelector(sel);
@@ -228,7 +230,172 @@ $('#form-cliente').addEventListener('submit', (e) => {
 $('#buscar-cliente').addEventListener('input', renderClientes);
 
 // ============================================================
+// PEDIDOS - CRUD
+// ============================================================
+function renderPedidos() {
+  const filtro = $('#buscar-pedido').value.toLowerCase();
+  const filtroEstado = $('#filtro-estado').value;
+  const tbody = $('#tabla-pedidos');
+
+  const lista = pedidos.filter(p => {
+    const cli = clientes.find(c => c.id === p.clienteId);
+    const nombreCli = cli ? cli.nombre.toLowerCase() : '';
+    return nombreCli.includes(filtro) && (!filtroEstado || p.estado === filtroEstado);
+  });
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No hay pedidos registrados</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(p => {
+    const cli = clientes.find(c => c.id === p.clienteId);
+    const itemsTxt = p.items.map(i => `${i.cantidad}× ${i.nombre}`).join(', ');
+    const badgeClass = 'badge-' + p.estado.replace(/\s/g, '');
+    return `
+      <tr>
+        <td>#${p.id}</td>
+        <td>${cli ? cli.nombre : '<em>cliente eliminado</em>'}</td>
+        <td>${itemsTxt}</td>
+        <td><strong>${fmt(p.total)}</strong></td>
+        <td><span class="badge ${badgeClass}">${p.estado}</span></td>
+        <td>${p.fecha}</td>
+        <td class="actions-cell">
+          <button class="btn btn-sm btn-secondary" onclick="editarPedido(${p.id})">Editar</button>
+          <button class="btn btn-sm btn-danger" onclick="eliminarPedido(${p.id})">Borrar</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function poblarSelectsPedido() {
+  const selCli = $('#pedido-cliente');
+  selCli.innerHTML = '<option value="">Seleccione cliente...</option>' +
+    clientes.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+
+  const selProd = $('#pedido-producto-select');
+  selProd.innerHTML = '<option value="">Seleccione producto...</option>' +
+    productos.map(p => `<option value="${p.id}">${p.nombre} - ${fmt(p.precio)}</option>`).join('');
+}
+
+function renderItemsPedido() {
+  const tbody = $('#pedido-items');
+  if (!pedidoItemsTemp.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin productos agregados</td></tr>';
+    $('#pedido-total').textContent = fmt(0);
+    return;
+  }
+  tbody.innerHTML = pedidoItemsTemp.map((item, i) => `
+    <tr>
+      <td>${item.nombre}</td>
+      <td>${item.cantidad}</td>
+      <td>${fmt(item.precio)}</td>
+      <td>${fmt(item.precio * item.cantidad)}</td>
+      <td><button type="button" class="btn btn-sm btn-danger" onclick="quitarItemPedido(${i})">×</button></td>
+    </tr>
+  `).join('');
+  const total = pedidoItemsTemp.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  $('#pedido-total').textContent = fmt(total);
+}
+
+window.quitarItemPedido = function(idx) {
+  pedidoItemsTemp.splice(idx, 1);
+  renderItemsPedido();
+};
+
+$('#btn-agregar-item').addEventListener('click', () => {
+  const prodId = parseInt($('#pedido-producto-select').value, 10);
+  const cantidad = parseInt($('#pedido-cantidad').value, 10);
+  if (!prodId || !cantidad || cantidad < 1) {
+    toast('Seleccione un producto y cantidad válida', 'error');
+    return;
+  }
+  const prod = productos.find(p => p.id === prodId);
+  const existente = pedidoItemsTemp.find(i => i.productoId === prodId);
+  if (existente) {
+    existente.cantidad += cantidad;
+  } else {
+    pedidoItemsTemp.push({
+      productoId: prod.id,
+      nombre: prod.nombre,
+      precio: prod.precio,
+      cantidad
+    });
+  }
+  $('#pedido-cantidad').value = 1;
+  renderItemsPedido();
+});
+
+$('#btn-nuevo-pedido').addEventListener('click', () => {
+  if (!clientes.length) { toast('Primero registra al menos un cliente', 'error'); return; }
+  if (!productos.length) { toast('Primero registra al menos un producto', 'error'); return; }
+  $('#form-pedido').reset();
+  $('#pedido-id').value = '';
+  pedidoItemsTemp = [];
+  poblarSelectsPedido();
+  renderItemsPedido();
+  $('#titulo-modal-pedido').textContent = 'Nuevo Pedido';
+  openModal('modal-pedido');
+});
+
+window.editarPedido = function(id) {
+  const p = pedidos.find(x => x.id === id);
+  if (!p) return;
+  poblarSelectsPedido();
+  $('#pedido-id').value = p.id;
+  $('#pedido-cliente').value = p.clienteId;
+  $('#pedido-estado').value = p.estado;
+  pedidoItemsTemp = p.items.map(i => ({ ...i }));
+  renderItemsPedido();
+  $('#titulo-modal-pedido').textContent = 'Editar Pedido #' + p.id;
+  openModal('modal-pedido');
+};
+
+window.eliminarPedido = function(id) {
+  if (!confirm('¿Eliminar este pedido?')) return;
+  pedidos = pedidos.filter(p => p.id !== id);
+  db.save(DB_KEYS.pedidos, pedidos);
+  renderPedidos();
+  toast('Pedido eliminado', 'success');
+};
+
+$('#form-pedido').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!pedidoItemsTemp.length) {
+    toast('Agregue al menos un producto', 'error');
+    return;
+  }
+  const id = $('#pedido-id').value;
+  const total = pedidoItemsTemp.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const data = {
+    clienteId: parseInt($('#pedido-cliente').value, 10),
+    items: pedidoItemsTemp.map(i => ({ ...i })),
+    total,
+    estado: $('#pedido-estado').value,
+    fecha: new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+  };
+
+  if (id) {
+    const idx = pedidos.findIndex(p => p.id === parseInt(id, 10));
+    pedidos[idx] = { ...pedidos[idx], ...data };
+    toast('Pedido actualizado', 'success');
+  } else {
+    pedidos.push({ id: db.nextId(pedidos), ...data });
+    toast('Pedido creado', 'success');
+  }
+
+  db.save(DB_KEYS.pedidos, pedidos);
+  closeModal('modal-pedido');
+  renderPedidos();
+});
+
+$('#buscar-pedido').addEventListener('input', renderPedidos);
+$('#filtro-estado').addEventListener('change', renderPedidos);
+
+// ============================================================
 // INIT
 // ============================================================
 renderProductos();
 renderClientes();
+renderPedidos();

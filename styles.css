@@ -11,6 +11,8 @@
   --muted: #78909c;
   --danger: #e53935;
   --success: #43a047;
+  --warning: #fb8c00;
+  --info: #1e88e5;
 }
 
 body {
@@ -158,6 +160,19 @@ tbody tr:last-child td { border-bottom: none; }
   gap: 0.4rem;
 }
 
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.badge-Pendiente { background: #fff3e0; color: var(--warning); }
+.badge-EnPreparación { background: #e3f2fd; color: var(--info); }
+.badge-Entregado { background: #e8f5e9; color: var(--success); }
+.badge-Cancelado { background: #ffebee; color: var(--danger); }
+
 /* MODAL */
 .modal {
   display: none;
@@ -182,6 +197,21 @@ tbody tr:last-child td { border-bottom: none; }
   overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0,0,0,0.2);
 }
+
+.modal-lg { max-width: 720px; }
+
+.agregar-producto {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  align-items: center;
+}
+
+.agregar-producto select { flex: 2; }
+.agregar-producto input { flex: 0 0 80px; }
+
+.table-wrap.small { margin-bottom: 1rem; }
+.table-wrap.small td, .table-wrap.small th { padding: 0.5rem 0.7rem; font-size: 0.88rem; }
 
 .modal-content h3 { margin-bottom: 1.2rem; color: var(--secondary); }
 
